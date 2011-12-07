@@ -1,0 +1,459 @@
+#% Do not delete the line below; configure depends on this
+#  \DeclareLaTeXClass{jcuthesis}
+# JCU Thesis textclass
+# Based on the "UNSW Thesis" textclass by Mark Reid, and extended upon work by David L. Johnson and others.
+# Author : David Breitkreutz <david.breitkreutz@jcu.edu.au>
+#
+# This is by no means the best way to set up a LyX layout - I probably should have
+# defined a .cls file that was an extension of amsbook and put most of the markup
+# in that. However, doing things this way means a user of this layout only need
+# install this file and not worry about installing a new .cls file.
+#
+# Much of the code in the preamble is borrowed from:
+#   http://www.ctan.org/tex-archive/macros/latex/contrib/adfathesis/adfathesis.dtx
+
+# General textclass parameters
+# Description          "jcuthesis"
+
+Columns			1
+Sides			2
+PageStyle		Headers
+MaxCounter		Counter_Chapter
+
+ClassOptions
+  FontSize   8|9|10|11|12
+End  
+
+# Standard style definition
+Style Standard
+  Margin  		Static
+  LatexType 	Paragraph
+  LatexName 	dummy
+  ParIndent		MM
+  ParSkip 		0.4
+  Align 		Block
+  AlignPossible Block, Left, Right, Center
+  LabelType 	No_Label
+End
+
+############### Title Page.
+Style Title
+  LatexType		Command
+  LatexName		title
+  InTitle		1
+  NewLine		1
+End
+
+Style Author
+  LatexType		Command
+  LatexName		author
+  InTitle		1
+End
+
+# Degree style definition
+Style Degree
+  LatexType		Command
+  LatexName		degreetype
+  InTitle		1
+  Margin		Dynamic
+  LabelType		Static
+  LabelString	"Degree: "
+
+  LabelFont
+    Series		Bold
+    Size		Normal
+  EndFont
+End
+
+# School style definition
+Style School
+  CopyStyle		Degree
+  LatexName		school
+  LabelString	"School: "
+End
+
+# University style definition
+Style University
+  CopyStyle		Degree
+  LatexName		university
+  LabelString	"University: "
+End
+
+# University style definition
+Style CrestFilename
+  CopyStyle		Degree
+  LatexName		crestfilename
+  LabelString	"Crest Filename: "
+End
+
+############### Pre-document Sections
+
+
+Input amsdefs.inc
+NoStyle Abstract
+
+Input stdstruct.inc
+
+Style Declaration
+	CopyStyle		Abstract
+      LatexName		declaration
+	LabelString       "Declaration"
+End
+
+
+# Acknowledgements style definition
+Style Acknowledgements
+  CopyStyle			Abstract
+  LatexName			acknowledgements
+  LabelString		"Acknowledgements"
+
+  # label font definition
+  LabelFont
+    Series		Bold
+    Size		Normal
+  EndFont
+End
+
+
+############### Sections.
+
+Input stdsections.inc
+
+# Redefine some of the section styles.
+Style Section
+  Align			Left
+  AlignPossible		Block, Center, Left
+
+  # standard font definition
+  Font
+    Series 		Medium
+    Size		Large
+  EndFont
+End
+
+# Subsection-numbered style definition
+Style Subsection
+  # standard font definition
+  Font
+    Series 		Bold
+    Size		Normal
+  EndFont
+End
+
+# Subsubsection-numbered style definition
+Style Subsubsection
+  # standard font definition
+  Font
+    Shape 		Italic
+    Size		Normal
+  EndFont
+End
+
+# then define the unumbered sections, based on the numbered ones.
+Input stdstarsections.inc
+
+Input lyxmacros.inc
+NoStyle Address
+
+ 
+Input stdlayouts.inc
+NoStyle Verse    # Although mathematicians tend to be poets at times, 
+                 # we don't need this.
+
+Input stdlists.inc
+Input stdfloats.inc
+
+############# Algorithm 2e Style
+Float
+  Type                  algorithm2e
+  GuiName               "Algorithm 2e"
+  Placement             tbp
+  Extension             loa
+  NumberWithin          none
+  Style                 ruled
+  ListName              "List of Algorithms"
+  LaTeXBuiltin          false
+End
+
+Input stdcounters.inc
+
+############### Verbatim environment using fancyvrb for code
+Style Code
+  LatexType		Environment
+  LatexName		Verbatim
+  LatexParam	"[fontsize=\smaller]" #,xleftmargin=2em,xrightmargin=2em]"
+  PassThru		1
+  NewLine		0
+  FreeSpacing   1
+  LeftMargin	MMM
+  RightMargin   MMM
+  ParSkip		0.0
+  TopSep		1.0
+  BottomSep		1.0
+  Align			Left
+  AlignPossible	Left
+
+  # standard font definition
+  Font
+    Family		Typewriter
+  EndFont
+
+  Preamble
+\usepackage{fancyvrb}
+  EndPreamble
+
+End
+
+########### Document Preamble
+# Defines margins, etc
+Preamble
+  \RequirePackage{graphicx}
+  %\numberwithin{section}{chapter}
+  %\theoremstyle{plain}    
+  %\newtheorem{thm}{Theorem}[chapter]
+  %\numberwithin{figure}{chapter} %% Comment out for sequentially-numbered
+  %\numberwithin{table}{chapter}  %% Comment out for sequentially-numbered
+
+\newcommand{\setpagesize}{%
+    \setlength{\parskip}{0pt}
+    \raggedbottom
+}
+
+%Define the new environments we introduce
+
+\newcommand{\ackname}{Acknowledgements}
+\if@titlepage
+  \newenvironment{acknowledgements}{%
+      \titlepage
+      \null\vfil
+      \@beginparpenalty\@lowpenalty
+      \begin{center}%
+        \bfseries \ackname
+        \@endparpenalty\@M
+      \end{center}}%
+     {\par\vfil\null\endtitlepage}
+\else
+  \newenvironment{acknowledgements}{%
+      \if@twocolumn
+        \section*{\ackname}%
+      \else
+        \small
+        \begin{center}%
+          {\bfseries \ackname\vspace{-.5em}\vspace{\z@}}%
+        \end{center}%
+        \quotation
+      \fi}
+      {\if@twocolumn\else\endquotation\fi}
+\fi
+
+
+%-----------------------------------------------------------------------
+%  Reduce widow/orphan problems, mainly from a posting from Donald
+%  Arsenau on comp.text.tex, 24 Sep 1995.
+%  Updated to follow comments from Michael Downes on comp.text.tex,
+%  31 Aug 1998.
+%-----------------------------------------------------------------------
+\doublehyphendemerits=10000     % No consecutive line hyphens.
+\brokenpenalty=4991             % Reduce broken words across columns/pages.
+\widowpenalty=9999              % Almost no widows at bottom of page.
+\clubpenalty=9996               % Almost no orphans at top of page.
+\interfootnotelinepenalty=9999  % Almost never break footnotes.
+\predisplaypenalty=10000        % Default value
+\postdisplaypenalty=1549        % Few breaks between display and widows
+\displaywidowpenalty=1602       % At least as high as \postdisplaypenalty
+
+%-----------------------------------------------------------------------
+% Change float placement parameters to reduce problems.  Based on
+% values posted by Donald Arsenau on comp.text.tex at various times.
+% See in particular 17th Nov 1997.
+%-----------------------------------------------------------------------
+\renewcommand{\topfraction}{.85}
+\renewcommand{\bottomfraction}{.7}
+\renewcommand{\textfraction}{.15}
+\renewcommand{\floatpagefraction}{.66}
+\renewcommand{\dbltopfraction}{.66}
+\renewcommand{\dblfloatpagefraction}{.66}
+\setcounter{topnumber}{9}
+\setcounter{bottomnumber}{9}
+\setcounter{totalnumber}{20}
+\setcounter{dbltopnumber}{9}
+
+%-----------------------------------------------------------------------
+% Re-define \cleardoublepage as recommended by Piet van Oostrum in the
+% documentation for fancyhdr.sty page 15.  This is to avoid blank pages
+% having headers or footers.
+%-----------------------------------------------------------------------
+\renewcommand{\cleardoublepage}{\clearpage\if@twoside \ifodd\c@page\else
+   \thispagestyle{empty}
+   \hbox{}\newpage\if@twocolumn\hbox{}\newpage\fi\fi\fi}
+
+%-----------------------------------------------------------------------
+% Number figures, tables and equations by chapter.  Re-define footnotes
+% and minipage footnotes to be single spaced.  Make new macros needed
+% for thesis definitions.
+%-----------------------------------------------------------------------
+\renewcommand{\thefigure}{\thechapter.\@arabic\c@figure}
+\renewcommand{\thetable}{\thechapter.\@arabic\c@table}
+\renewcommand{\theequation}{\thechapter.\@arabic\c@equation}
+
+% Re-define \@footnotetext and \@mpfootnotetext to use single spacing
+% rather than the space-and-a-half that is the default elsewhere.
+
+\renewcommand{\@footnotetext}[1]{\insert\footins{%
+    \linespread{1}\normalfont\footnotesize%
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox \floatingpenalty \@MM
+    \hsize\columnwidth \@parboxrestore
+    \protected@edef\@currentlabel{%
+      \csname p@footnote\endcsname\@thefnmark}%
+    \color@begingroup
+      \@makefntext{%
+        \rule\z@\footnotesep\ignorespaces#1\@finalstrut\strutbox}%
+    \color@endgroup}}
+
+\renewcommand{\@mpfootnotetext}[1]{%
+  \global\setbox\@mpfootins\vbox{%
+    \unvbox \@mpfootins
+    \linespread{1}\normalfont\footnotesize%
+    \hsize\columnwidth
+    \@parboxrestore
+    \protected@edef\@currentlabel{%
+      \csname p@mpfootnote\endcsname\@thefnmark}%
+    \color@begingroup
+      \@makefntext{%
+       \rule\z@\footnotesep\ignorespaces#1\@finalstrut\strutbox}%
+   \color@endgroup}}
+
+%Define our elements for our title page
+
+\renewcommand{\title}[1]{\gdef\@title{#1}}
+\renewcommand{\author}[1]{\gdef\@author{#1}}
+\newcommand{\school}[1]{\gdef\@school{#1}}
+\newcommand{\degreetype}[1]{\gdef\@degreetype{#1}}
+\newcommand{\university}[1]{\gdef\@university{#1}}
+\newcommand{\crestfilename}[1]{\gdef\@crestfilename{#1}}
+\newcommand{\submitdate}[1]{\gdef\@submitdate{#1}}
+\newcommand{\declaration}[1]{\gdef\@declaration{#1}}
+
+\newcommand{\@submitdate}{\number\the\day\ \ifcase\the\month\or
+  January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or December\fi
+  \space \number\the\year}
+\ifnum\month=12
+    \@tempcnta=\year \advance\@tempcnta by 1
+    \edef\@copyrightyear{\number\the\@tempcnta}
+\else
+    \newcommand{\@copyrightyear}{\number\the\year}
+\fi
+
+%-----------------------------------------------------------------------
+% Title page definition.
+%-----------------------------------------------------------------------
+\newcommand{\titlep}{%
+        \thispagestyle{empty}%
+        \begin{titlepage}
+        \null\vskip2.5cm%
+        \begin{center}
+                {\rmfamily\huge\expandafter{\@title}}
+        \end{center}
+        \vskip1cm
+        \begin{center}
+                {\rmfamily\normalsize By \\ \expandafter{\@author}}
+        \end{center}
+        \vfill
+        \begin{flushleft}
+	  	{\rmfamily\normalsize Dissertation submitted by \expandafter{\@author} in partial fulfillment of the requirements for the Degree of 
+\expandafter{\@degreetype} in the Department of \expandafter{\@school} at \expandafter{\@university}.}
+        \end{flushleft}
+        \vfill
+        \vskip1cm
+\begin{center}
+\includegraphics[width=4cm]{\@crestfilename}
+\end{center}
+        \vskip1cm
+        \begin{center}
+                {\rmfamily\normalsize \expandafter{\@school},\\
+                \expandafter{\@university}.}
+                \vskip1cm
+                {\rmfamily\normalsize \@submitdate}\\
+        \end{center}
+        \vskip1cm
+        \end{titlepage}
+        \newpage}
+
+%-----------------------------------------------------------------------
+% Thesis declaration definition.
+%-----------------------------------------------------------------------
+
+\newcommand{\dodeclaration}{%
+        \thispagestyle{empty}%
+	  \vspace*{\fill}
+	  \begin{center}
+                {\bf\normalsize Declaration}
+        \end{center}
+        \begin{declaration}
+        \null\vskip2.5cm%
+        \begin{flushleft}
+                {\rmfamily\normalsize I declare that this thesis is my own work and has not been submitted in any form
+for another degree or diploma at any university or other institute of tertiary education. Information derived from the 
+published and unpublished work of others has been acknowledged in the text and a list of references is given.}
+        \end{flushleft}
+        \vfill
+        \vskip1cm
+        \begin{flushleft}
+		{\rmfamily\normalsize \expandafter{\@author} \\ \@submitdate}
+	  \end{flushleft}
+        \vfill
+        \vskip1cm
+        \end{declaration}
+ 	  \vspace*{\fill}
+        \newpage
+	}
+
+\newcommand{\statementofaccess}{%
+        \thispagestyle{empty}%
+	  \vspace*{\fill}
+	  \begin{center}
+                {\bf\normalsize Statement of Access to Thesis}
+        \end{center}
+        \begin{declaration}
+        \null\vskip2.5cm%
+        \begin{flushleft}
+                {\rmfamily\normalsize I, the undersigned, the author of this thesis, understand the James Cook University will make it available for use 
+within the University Library and, by microfilm or other photographic means, allow access to users in other approved libraries. All users consulting this 
+thesis will have to sign the following statement: \\
+        \vskip0.5cm
+``In consulting this thesis I agree not to copy or closely paraphrase it in whole or in
+part without the written consent of the author; and to make proper written
+acknowledgement for any assistance which I have obtained from it.'' \\
+        \vskip0.5cm
+Beyond this, I do not wish to place any restriction on access to this thesis.}
+        \end{flushleft}
+        \vfill
+        \vskip1cm
+        \begin{flushleft}
+		{\rmfamily\normalsize \dotfill{}\hspace*{0.3\paperwidth}\dotfill{}}
+	  \end{flushleft}
+        \vfill
+        \vskip1cm
+        \end{declaration}
+        \vspace*{\fill}
+        \newpage
+	}
+
+
+%-----------------------------------------------------------------------
+% Redefine \maketitle so as to make a JCU suitable thesis
+%-----------------------------------------------------------------------
+\renewcommand{\maketitle}{%
+        \pagenumbering{roman}%
+        \thispagestyle{empty}%
+        \newpage%
+        \titlep
+	  \dodeclaration
+        \statementofaccess
+        \setpagesize
+        \raggedbottom
+    }
+EndPreamble
